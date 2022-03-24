@@ -2,17 +2,19 @@ part of stackdriver_dart;
 
 class StackDriverReportOptions {
   final bool isEnabled;
+  final bool logContent;
 
-  const StackDriverReportOptions({this.isEnabled = true});
+  const StackDriverReportOptions(
+      {this.isEnabled = true, this.logContent = false});
 }
 
 class StackDriverReportExtension extends Extension<StackDriverReportOptions> {
   final StackDriverErrorReporter? reporter;
 
   StackDriverReportExtension(
-      {StackDriverReportOptions defaultOptions =
-          const StackDriverReportOptions(),
-      this.reporter})
+      {this.reporter,
+      StackDriverReportOptions defaultOptions =
+          const StackDriverReportOptions()})
       : super(defaultOptions: defaultOptions);
 
   @override
@@ -29,7 +31,7 @@ class StackDriverReportExtension extends Extension<StackDriverReportOptions> {
       if (response.statusCode >= HttpStatus.badRequest) {
         reporter?.apiReport(ApiException.withInner(
             response.statusCode,
-            await response.stream.bytesToString(),
+            options.logContent ? await response.stream.bytesToString() : null,
             request.method,
             url,
             null,

@@ -6,7 +6,8 @@ class DioStackDriverReport extends dio.Interceptor {
   DioStackDriverReport({this.reporter});
 
   @override
-  void onRequest(dio.RequestOptions options, dio.RequestInterceptorHandler handler) {
+  void onRequest(
+      dio.RequestOptions options, dio.RequestInterceptorHandler handler) {
     final url = options.uri.toString();
     try {
       super.onRequest(options, handler);
@@ -21,6 +22,7 @@ class DioStackDriverReport extends dio.Interceptor {
       rethrow;
     }
   }
+
   @override
   void onError(dio.DioError err, dio.ErrorInterceptorHandler handler) {
     final url = err.response?.requestOptions.uri.toString() ?? "";
