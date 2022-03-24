@@ -1,8 +1,8 @@
 part of stackdriver_dart;
 
 class ApiException implements Exception {
-  ApiException.withInner(this.code, this.message, this.method,
-      this.url, this.innerException, this.stackTrace);
+  ApiException.withInner(this.code, this.message, this.method, this.url,
+      this.innerException, this.stackTrace);
 
   int code = 0;
   String? message;
@@ -111,7 +111,6 @@ class SourceReference {
   }
 }
 
-
 class HttpRequestContext {
   String? method;
   String? url;
@@ -122,11 +121,11 @@ class HttpRequestContext {
 
   HttpRequestContext(
       {this.method,
-        this.url,
-        this.userAgent,
-        this.referrer,
-        this.responseStatusCode,
-        this.remoteIp});
+      this.url,
+      this.userAgent,
+      this.referrer,
+      this.responseStatusCode,
+      this.remoteIp});
 
   static HttpRequestContext fromException(ApiException exception) {
     return HttpRequestContext(
@@ -179,11 +178,10 @@ class ErrorContext {
   String? user;
 
   ErrorContext(
-      {
-        this.reportLocation,
-        this.sourceReferences,
-        this.httpRequest,
-        this.user});
+      {this.reportLocation,
+      this.sourceReferences,
+      this.httpRequest,
+      this.user});
 
   @override
   String toString() {
