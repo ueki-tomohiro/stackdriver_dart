@@ -1,7 +1,7 @@
 name: stackdriver_dart
 description: stackdriver dart
-version: 1.0.3
-homepage: http://playon.jp
+version: 1.0.4
+homepage: https://playon.jp
 repository: https://github.com/ueki-tomohiro/stackdriver_dart
 
 environment:

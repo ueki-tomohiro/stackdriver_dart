@@ -1,3 +1,5 @@
+[![pub package](https://img.shields.io/pub/v/stackdriver_dart.svg)](https://pub.dev/packages/stackdriver_dart)
+
 This package report to Google Cloud Error Reporting.
 It's multi-platform.
 Http request supported via http and dio package.
