@@ -1,6 +1,6 @@
 name: stackdriver_dart
 description: stackdriver dart
-version: 1.0.4
+version: 1.0.5
 homepage: https://playon.jp
 repository: https://github.com/ueki-tomohiro/stackdriver_dart
 
@@ -20,6 +20,5 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^1.0.0
-
 
 flutter:

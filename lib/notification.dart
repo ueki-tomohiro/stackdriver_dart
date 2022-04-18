@@ -8,6 +8,7 @@ class Config {
   final String? key;
   final String? targetUrl;
   final String? projectId;
+  final String? referer;
   final ErrorContext? context;
   final String? service;
   final String? version;
@@ -19,6 +20,7 @@ class Config {
       {this.key,
       this.targetUrl,
       this.projectId,
+      this.referer,
       this.context,
       this.service,
       this.version,
@@ -32,6 +34,7 @@ class StackDriverErrorReporter {
   String? apiKey;
   String? projectId;
   String? targetUrl;
+  String referer = "";
   ErrorContext? context;
   ServiceContext? serviceContext;
   bool disabled = true;
@@ -65,6 +68,7 @@ class StackDriverErrorReporter {
     customReportingFunction = config.customReportingFunction;
     apiKey = config.key;
     projectId = config.projectId;
+    referer = config.referer ?? "";
     targetUrl = config.targetUrl;
     context = config.context ?? ErrorContext();
     serviceContext = ServiceContext(
@@ -183,7 +187,12 @@ class StackDriverErrorReporter {
 
   Future<Exception> sendErrorPayload(String url, Payload payload) async {
     final request = http.Request("POST", Uri.parse(url));
-    request.headers.addAll({'Content-Type': 'application/json; charset=UTF-8'});
+    request.headers.addAll({
+      'Content-Type': 'application/json; charset=UTF-8',
+    });
+    if (referer != "") {
+      request.headers.addAll({'referer': '$referer/', 'origin': referer});
+    }
     String body = jsonEncode(payload.toJson());
     request.body = body;
     final response = await _client.send(request);
