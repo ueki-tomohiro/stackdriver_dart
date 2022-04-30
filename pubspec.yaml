@@ -1,24 +1,22 @@
 name: stackdriver_dart
-description: stackdriver dart
-version: 1.0.5
+description: logging stackdriver report
+version: 1.0.7
 homepage: https://playon.jp
 repository: https://github.com/ueki-tomohiro/stackdriver_dart
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
-  flutter: ">=1.17.0"
+  flutter: ">=2.5.0"
 
 dependencies:
   flutter:
     sdk: flutter
   http: ^0.13.4
   http_extensions: ^1.0.0
-  dio: ^4.0.3
+  dio: ^4.0.6
   stack_trace: ^1.10.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^1.0.0
-
-flutter:
