@@ -1,17 +1,16 @@
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
-import 'package:http_extensions/http_extensions.dart';
+import 'package:pretty_http_logger/pretty_http_logger.dart';
 import 'package:stackdriver_dart/stackdriver_dart.dart';
 
 class HttpApiClient {
   late final StackDriverErrorReporter reporter;
-  late final ExtendedClient _client;
+  late final HttpClientWithMiddleware _client;
 
   HttpApiClient(this.reporter) {
-    _client = ExtendedClient(
-      inner: http.Client() as http.BaseClient,
-      extensions: [
+    _client = HttpClientWithMiddleware.build(
+      middlewares: [
         StackDriverReportExtension(reporter: reporter),
       ],
     );
@@ -35,11 +34,10 @@ class DioApiClient {
   }
 }
 
-
 void main() {
   final config = Config(
       projectId: "PROJECT_ID",
-      key:"API_KEY",
+      key: "API_KEY",
       service: 'my-app',
       version: "1.0.0");
 
@@ -53,8 +51,8 @@ void main() {
     reporter.start(config);
     final httpApiClient = HttpApiClient(reporter);
     try {
-    await httpApiClient.callApi(http.Request("GET", Uri.parse("")));
-    } catch(_){}
+      await httpApiClient.callApi(http.Request("GET", Uri.parse("")));
+    } catch (_) {}
   });
 
   test('dio test', () async {
@@ -63,6 +61,6 @@ void main() {
     final dioApiClient = DioApiClient(reporter);
     try {
       await dioApiClient.callApi(dio.RequestOptions(path: ""));
-    } catch(_){}
+    } catch (_) {}
   });
 }

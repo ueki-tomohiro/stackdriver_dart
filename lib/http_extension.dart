@@ -8,46 +8,43 @@ class StackDriverReportOptions {
       {this.isEnabled = true, this.logContent = false});
 }
 
-class StackDriverReportExtension extends Extension<StackDriverReportOptions> {
+class StackDriverReportExtension implements MiddlewareContract {
+  final StackDriverReportOptions options;
   final StackDriverErrorReporter? reporter;
 
-  StackDriverReportExtension(
-      {this.reporter,
-      StackDriverReportOptions defaultOptions =
-          const StackDriverReportOptions()})
-      : super(defaultOptions: defaultOptions);
+  StackDriverReportExtension({
+    this.reporter,
+    this.options = const StackDriverReportOptions(),
+  });
 
   @override
-  Future<http.StreamedResponse> sendWithOptions(
-      http.BaseRequest request, StackDriverReportOptions options) async {
-    if (!options.isEnabled) {
-      return await super.sendWithOptions(request, options);
-    }
-    final url = request.url.toString();
+  void interceptRequest(RequestData data) {}
 
+  @override
+  void interceptResponse(ResponseData data) {
     try {
-      final response = await super.sendWithOptions(request, options);
-
-      if (response.statusCode >= HttpStatus.badRequest) {
+      if (data.statusCode >= HttpStatus.badRequest) {
         reporter?.apiReport(ApiException.withInner(
-            response.statusCode,
-            options.logContent ? await response.stream.bytesToString() : null,
-            request.method,
-            url,
+            data.statusCode,
+            options.logContent ? data.body : null,
+            data.method.name,
+            data.url,
             null,
             StackTrace.current));
       }
-
-      return response;
     } catch (error, trace) {
       reporter?.apiReport(ApiException.withInner(
-          HttpStatus.badRequest,
-          'Invalid HTTP operation: ${request.method} $url',
-          request.method,
-          url,
-          error,
-          trace));
+        HttpStatus.badRequest,
+        'Invalid HTTP operation: ${data.method.name} ${data.url}',
+        data.method.name,
+        data.url,
+        error,
+        trace,
+      ));
       rethrow;
     }
   }
+
+  @override
+  void interceptError(dynamic error) {}
 }

@@ -24,9 +24,9 @@ class DioStackDriverReport extends dio.Interceptor {
   }
 
   @override
-  void onError(dio.DioError err, dio.ErrorInterceptorHandler handler) {
+  void onError(dio.DioException err, dio.ErrorInterceptorHandler handler) {
     final url = err.response?.requestOptions.uri.toString() ?? "";
-    if (err.type == dio.DioErrorType.response) {
+    if (err.type == dio.DioExceptionType.badResponse) {
       reporter?.apiReport(ApiException.withInner(
           err.response?.statusCode ?? HttpStatus.badRequest,
           err.response?.toString(),
