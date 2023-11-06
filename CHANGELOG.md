@@ -1,3 +1,7 @@
+## 1.1.0
+
+change http logger package
+
 ## 1.0.9
 
 package update
