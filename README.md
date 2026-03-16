@@ -15,8 +15,8 @@ The package includes:
 
 ## Requirements
 
-- Dart `>=3.0.0 <4.0.0`
-- Flutter `>=3.10.0`
+- Dart `^3.11.1`
+- Flutter `>=3.41.4`
 
 ## Installation
 
@@ -24,7 +24,7 @@ Add the dependency:
 
 ```yaml
 dependencies:
-  stackdriver_dart: ^1.1.0
+  stackdriver_dart: ^2.0.0
 ```
 
 Then install packages:
