@@ -1,8 +1,10 @@
-part of stackdriver_dart;
+part of 'stackdriver_dart.dart';
 
 /// URL endpoint of the Stackdriver Error Reporting report API.
 const baseAPIUrl =
     'https://clouderrorreporting.googleapis.com/v1beta1/projects/';
+
+typedef ReportingFunction = FutureOr<Exception?> Function(Payload payload);
 
 class Config {
   final String? key;
@@ -14,7 +16,7 @@ class Config {
   final String? version;
   final bool disabled;
   final bool reportUncaughtExceptions;
-  final Function? customReportingFunction;
+  final ReportingFunction? customReportingFunction;
 
   Config(
       {this.key,
@@ -30,7 +32,7 @@ class Config {
 }
 
 class StackDriverErrorReporter {
-  Function? customReportingFunction;
+  ReportingFunction? customReportingFunction;
   String? apiKey;
   String? projectId;
   String? targetUrl;
@@ -127,11 +129,11 @@ class StackDriverErrorReporter {
       ),
     );
     final message =
-        await resolveError(errorMessage: errorMessage, stackTrace: stackTrace);
+        resolveError(errorMessage: errorMessage, stackTrace: stackTrace);
     payload.message = message;
 
     if (customFunc != null) {
-      return customFunc(payload);
+      return await customFunc(payload);
     }
 
     return sendErrorPayload(reportUrl, payload);
@@ -145,7 +147,7 @@ class StackDriverErrorReporter {
     var reportUrl =
         targetUrl ?? '$baseAPIUrl$projectId/events:report?key=$apiKey';
 
-    final message = await resolveError(
+    final message = resolveError(
         errorMessage: exception.message, stackTrace: exception.stackTrace);
 
     Payload payload = Payload(
@@ -158,17 +160,17 @@ class StackDriverErrorReporter {
 
     var customFunc = customReportingFunction;
     if (customFunc != null) {
-      return customFunc(payload);
+      return await customFunc(payload);
     }
 
     return sendErrorPayload(reportUrl, payload);
   }
 
-  resolveError({String? errorMessage, StackTrace? stackTrace}) {
-    return 'Error: $errorMessage\n' +
-        (stackTrace != null
+  String resolveError({String? errorMessage, StackTrace? stackTrace}) {
+    return 'Error: $errorMessage\n'
+        '${stackTrace != null
             ? Trace.from(stackTrace).frames.map((f) {
-                String member = f.member ?? "<anonymous>";
+                String member = f.member ?? '<anonymous>';
                 if (member == '<fn>') {
                   member = '<anonymous>';
                 }
@@ -182,7 +184,7 @@ class StackDriverErrorReporter {
 
                 return '    at $member ($loc)\n';
               }).join('')
-            : "");
+            : ''}';
   }
 
   Future<Exception> sendErrorPayload(String url, Payload payload) async {
@@ -211,7 +213,7 @@ class StackDriverErrorReporter {
     }
   }
 
-  setUser(String user) {
+  void setUser(String user) {
     context?.user = user;
   }
 }

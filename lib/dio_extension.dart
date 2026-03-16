@@ -1,4 +1,4 @@
-part of stackdriver_dart;
+part of 'stackdriver_dart.dart';
 
 class DioStackDriverReport extends dio.Interceptor {
   final StackDriverErrorReporter? reporter;

@@ -4,31 +4,29 @@ import 'package:flutter/material.dart';
 import 'package:stackdriver_dart/stackdriver_dart.dart';
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
-  _MyAppState createState() => _MyAppState();
+  State<MyApp> createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Report Sample",
+      title: 'Report Sample',
       supportedLocales: const [
         Locale('ja', 'JP'),
         Locale('en', ''),
       ],
-      home: Container(
-        child: const Center(
-          child: Text(
-            "Report Sample",
-            style: TextStyle(
-              fontFamily: 'NotoSansJP',
-              fontSize: 24,
-              fontWeight: FontWeight.w200,
-              color: Color.fromRGBO(0, 102, 238, 0.08),
-            ),
+      home: const Center(
+        child: Text(
+          'Report Sample',
+          style: TextStyle(
+            fontFamily: 'NotoSansJP',
+            fontSize: 24,
+            fontWeight: FontWeight.w200,
+            color: Color.fromRGBO(0, 102, 238, 0.08),
           ),
         ),
       ),
@@ -36,12 +34,12 @@ class _MyAppState extends State<MyApp> {
   }
 }
 
-Future main() async {
+Future<void> main() async {
   final config = Config(
-      projectId: "PROJECT_ID",
-      key:"API_KEY",
+      projectId: 'PROJECT_ID',
+      key: 'API_KEY',
       service: 'my-app',
-      version: "1.0.0");
+      version: '1.0.0');
 
   final reporter = StackDriverErrorReporter();
   reporter.start(config);

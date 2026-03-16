@@ -1,4 +1,4 @@
-part of stackdriver_dart;
+part of 'stackdriver_dart.dart';
 
 class ApiException implements Exception {
   ApiException.withInner(this.code, this.message, this.method, this.url,

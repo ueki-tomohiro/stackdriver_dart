@@ -5,18 +5,18 @@ homepage: https://playon.jp
 repository: https://github.com/ueki-tomohiro/stackdriver_dart
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
-  flutter: ">=3.10.0"
+  sdk: ^3.11.1
+  flutter: ">=3.41.4"
 
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.1.0
-  pretty_http_logger: ^1.0.2
-  dio: ^5.3.3
-  stack_trace: ^1.11.0
+  http: ^1.6.0
+  pretty_http_logger: ^1.0.5
+  dio: ^5.9.2
+  stack_trace: ^1.12.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^1.0.0
+  flutter_lints: ^6.0.0

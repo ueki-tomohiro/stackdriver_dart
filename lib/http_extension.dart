@@ -1,4 +1,4 @@
-part of stackdriver_dart;
+part of 'stackdriver_dart.dart';
 
 class StackDriverReportOptions {
   final bool isEnabled;
