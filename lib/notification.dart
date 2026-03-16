@@ -4,42 +4,83 @@ part of 'stackdriver_dart.dart';
 const baseAPIUrl =
     'https://clouderrorreporting.googleapis.com/v1beta1/projects/';
 
+/// Signature for a custom reporting transport implementation.
 typedef ReportingFunction = FutureOr<Exception?> Function(Payload payload);
 
+/// Configuration used to initialize [StackDriverErrorReporter].
 class Config {
+  /// API key used with the default Google Cloud Error Reporting endpoint.
   final String? key;
+
+  /// Custom report endpoint, typically a proxy or test server.
   final String? targetUrl;
+
+  /// Google Cloud project identifier.
   final String? projectId;
+
+  /// Optional value sent as both `referer` and `origin` headers.
   final String? referer;
+
+  /// Base context attached to all reports.
   final ErrorContext? context;
+
+  /// Service name shown in Error Reporting.
   final String? service;
+
+  /// Service version shown in Error Reporting.
   final String? version;
+
+  /// Disables all reporting when `true`.
   final bool disabled;
+
+  /// Registers uncaught Flutter errors automatically when `true`.
   final bool reportUncaughtExceptions;
+
+  /// Overrides HTTP transport and receives each generated payload.
   final ReportingFunction? customReportingFunction;
 
-  Config(
-      {this.key,
-      this.targetUrl,
-      this.projectId,
-      this.referer,
-      this.context,
-      this.service,
-      this.version,
-      this.disabled = false,
-      this.reportUncaughtExceptions = true,
-      this.customReportingFunction});
+  /// Creates a reporter configuration.
+  Config({
+    this.key,
+    this.targetUrl,
+    this.projectId,
+    this.referer,
+    this.context,
+    this.service,
+    this.version,
+    this.disabled = false,
+    this.reportUncaughtExceptions = true,
+    this.customReportingFunction,
+  });
 }
 
+/// Singleton reporter for sending exceptions to Google Cloud Error Reporting.
 class StackDriverErrorReporter {
+  /// Custom transport used instead of the default HTTP sender.
   ReportingFunction? customReportingFunction;
+
+  /// API key used for the default endpoint.
   String? apiKey;
+
+  /// Google Cloud project identifier.
   String? projectId;
+
+  /// Override URL for the report endpoint.
   String? targetUrl;
+
+  /// Optional `referer` header value.
   String referer = "";
+
+  /// Base context attached to each report.
   ErrorContext? context;
+
+  /// Service metadata attached to each report.
   ServiceContext? serviceContext;
+
+  /// Disables sending reports when `true`.
   bool disabled = true;
+
+  /// Controls automatic registration of uncaught Flutter errors.
   bool reportUncaughtExceptions = true;
 
   final _client = http.Client();
@@ -53,18 +94,21 @@ class StackDriverErrorReporter {
     return _stackDriverErrorReporter;
   }
 
+  /// Initializes the singleton reporter with [config].
   void start(Config config) {
     if (config.key?.isNotEmpty == false &&
         config.targetUrl?.isNotEmpty == false &&
         config.customReportingFunction == null) {
       throw Exception(
-          'Cannot initialize: No API key, target url or custom reporting function provided.');
+        'Cannot initialize: No API key, target url or custom reporting function provided.',
+      );
     }
     if (config.projectId?.isNotEmpty == false &&
         config.targetUrl?.isNotEmpty == false &&
         config.customReportingFunction != null) {
       throw Exception(
-          'Cannot initialize: No project ID, target url or custom reporting function provided.');
+        'Cannot initialize: No project ID, target url or custom reporting function provided.',
+      );
     }
 
     customReportingFunction = config.customReportingFunction;
@@ -74,13 +118,16 @@ class StackDriverErrorReporter {
     targetUrl = config.targetUrl;
     context = config.context ?? ErrorContext();
     serviceContext = ServiceContext(
-        service: config.service ?? 'web', version: config.version ?? "");
+      service: config.service ?? 'web',
+      version: config.version ?? "",
+    );
     reportUncaughtExceptions = config.reportUncaughtExceptions != false;
     disabled = config.disabled;
 
     registerHandlers(this);
   }
 
+  /// Registers handlers for uncaught Flutter framework errors.
   void registerHandlers(StackDriverErrorReporter reporter) {
     if (reporter.reportUncaughtExceptions) {
       FlutterError.onError = (FlutterErrorDetails details) {
@@ -92,6 +139,7 @@ class StackDriverErrorReporter {
     }
   }
 
+  /// Reports an application error or exception.
   Future<Exception?> report({Object? err, StackTrace? trace}) async {
     if (disabled) {
       return null;
@@ -124,12 +172,12 @@ class StackDriverErrorReporter {
 
     Payload payload = Payload(
       serviceContext: serviceContext,
-      context: ErrorContext(
-        user: context?.user ?? "",
-      ),
+      context: ErrorContext(user: context?.user ?? ""),
     );
-    final message =
-        resolveError(errorMessage: errorMessage, stackTrace: stackTrace);
+    final message = resolveError(
+      errorMessage: errorMessage,
+      stackTrace: stackTrace,
+    );
     payload.message = message;
 
     if (customFunc != null) {
@@ -139,6 +187,7 @@ class StackDriverErrorReporter {
     return sendErrorPayload(reportUrl, payload);
   }
 
+  /// Reports an HTTP/API failure.
   Future<Exception?> apiReport(ApiException exception) async {
     if (disabled) {
       return null;
@@ -148,15 +197,18 @@ class StackDriverErrorReporter {
         targetUrl ?? '$baseAPIUrl$projectId/events:report?key=$apiKey';
 
     final message = resolveError(
-        errorMessage: exception.message, stackTrace: exception.stackTrace);
+      errorMessage: exception.message,
+      stackTrace: exception.stackTrace,
+    );
 
     Payload payload = Payload(
-        serviceContext: serviceContext,
-        context: ErrorContext(
-          httpRequest: HttpRequestContext.fromException(exception),
-          user: context?.user ?? "",
-        ),
-        message: message);
+      serviceContext: serviceContext,
+      context: ErrorContext(
+        httpRequest: HttpRequestContext.fromException(exception),
+        user: context?.user ?? "",
+      ),
+      message: message,
+    );
 
     var customFunc = customReportingFunction;
     if (customFunc != null) {
@@ -166,10 +218,10 @@ class StackDriverErrorReporter {
     return sendErrorPayload(reportUrl, payload);
   }
 
+  /// Formats an error message into a Stackdriver-compatible stack trace string.
   String resolveError({String? errorMessage, StackTrace? stackTrace}) {
     return 'Error: $errorMessage\n'
-        '${stackTrace != null
-            ? Trace.from(stackTrace).frames.map((f) {
+        '${stackTrace != null ? Trace.from(stackTrace).frames.map((f) {
                 String member = f.member ?? '<anonymous>';
                 if (member == '<fn>') {
                   member = '<anonymous>';
@@ -183,15 +235,13 @@ class StackDriverErrorReporter {
                 }
 
                 return '    at $member ($loc)\n';
-              }).join('')
-            : ''}';
+              }).join('') : ''}';
   }
 
+  /// Sends a prepared [payload] to the report endpoint at [url].
   Future<Exception> sendErrorPayload(String url, Payload payload) async {
     final request = http.Request("POST", Uri.parse(url));
-    request.headers.addAll({
-      'Content-Type': 'application/json; charset=UTF-8',
-    });
+    request.headers.addAll({'Content-Type': 'application/json; charset=UTF-8'});
     if (referer != "") {
       request.headers.addAll({'referer': '$referer/', 'origin': referer});
     }
@@ -213,6 +263,7 @@ class StackDriverErrorReporter {
     }
   }
 
+  /// Sets the end-user identifier attached to subsequent reports.
   void setUser(String user) {
     context?.user = user;
   }

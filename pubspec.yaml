@@ -1,6 +1,6 @@
 name: stackdriver_dart
-description: logging stackdriver report
-version: 2.0.0
+description: Flutter package for reporting uncaught application errors and HTTP failures to Google Cloud Error Reporting.
+version: 2.0.1
 homepage: https://playon.jp
 repository: https://github.com/ueki-tomohiro/stackdriver_dart
 

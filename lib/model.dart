@@ -1,14 +1,33 @@
 part of 'stackdriver_dart.dart';
 
+/// Wraps HTTP failure information before it is sent to Error Reporting.
 class ApiException implements Exception {
-  ApiException.withInner(this.code, this.message, this.method, this.url,
-      this.innerException, this.stackTrace);
+  /// Creates an API exception with the original error and stack trace.
+  ApiException.withInner(
+    this.code,
+    this.message,
+    this.method,
+    this.url,
+    this.innerException,
+    this.stackTrace,
+  );
 
+  /// HTTP status code associated with the failure.
   int code = 0;
+
+  /// Message body or summary captured from the failed operation.
   String? message;
+
+  /// HTTP method used for the request.
   String method;
+
+  /// Request URL that failed.
   String url;
+
+  /// Original exception thrown by the HTTP client, when available.
   Object? innerException;
+
+  /// Stack trace captured when the failure was observed.
   StackTrace? stackTrace;
 
   @override
@@ -24,11 +43,18 @@ class ApiException implements Exception {
   }
 }
 
+/// Describes the service metadata attached to an error payload.
 class ServiceContext {
+  /// Service version shown in Google Cloud Error Reporting.
   String? version;
+
+  /// Service name shown in Google Cloud Error Reporting.
   String? service;
+
+  /// Optional monitored resource type.
   String? resourceType;
 
+  /// Creates a service context payload.
   ServiceContext({this.version, this.service, this.resourceType});
 
   @override
@@ -36,6 +62,7 @@ class ServiceContext {
     return toJson().toString();
   }
 
+  /// Converts this object to a JSON-ready map.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
@@ -50,22 +77,26 @@ class ServiceContext {
   }
 }
 
+/// Identifies a source code location for a reported error.
 class SourceLocation {
+  /// Path of the source file.
   String? filePath;
+
+  /// Line number of the source location.
   int? lineNumber;
+
+  /// Function or method name.
   String? functionName;
 
-  SourceLocation({
-    this.filePath,
-    this.lineNumber,
-    this.functionName,
-  });
+  /// Creates a source location payload.
+  SourceLocation({this.filePath, this.lineNumber, this.functionName});
 
   @override
   String toString() {
     return toJson().toString();
   }
 
+  /// Converts this object to a JSON-ready map.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
@@ -83,20 +114,23 @@ class SourceLocation {
   }
 }
 
+/// Describes a source repository reference related to an error.
 class SourceReference {
+  /// Repository URL or identifier.
   String? repository;
+
+  /// Revision identifier such as a commit SHA.
   String? revisionId;
 
-  SourceReference({
-    this.repository,
-    this.revisionId,
-  });
+  /// Creates a source reference payload.
+  SourceReference({this.repository, this.revisionId});
 
   @override
   String toString() {
     return toJson().toString();
   }
 
+  /// Converts this object to a JSON-ready map.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
@@ -111,30 +145,46 @@ class SourceReference {
   }
 }
 
+/// Captures request metadata for an API failure report.
 class HttpRequestContext {
+  /// HTTP method used for the request.
   String? method;
+
+  /// Request URL.
   String? url;
+
+  /// User-Agent header value.
   String? userAgent;
+
+  /// Referrer header value.
   String? referrer;
+
+  /// HTTP response status code.
   String? responseStatusCode;
+
+  /// Remote IP address, when available.
   String? remoteIp;
 
-  HttpRequestContext(
-      {this.method,
-      this.url,
-      this.userAgent,
-      this.referrer,
-      this.responseStatusCode,
-      this.remoteIp});
+  /// Creates an HTTP request context payload.
+  HttpRequestContext({
+    this.method,
+    this.url,
+    this.userAgent,
+    this.referrer,
+    this.responseStatusCode,
+    this.remoteIp,
+  });
 
+  /// Builds a request context from an [ApiException].
   static HttpRequestContext fromException(ApiException exception) {
     return HttpRequestContext(
-        method: exception.method,
-        url: exception.url,
-        responseStatusCode: exception.code.toString(),
-        userAgent: HttpClient().userAgent,
-        referrer: "",
-        remoteIp: "");
+      method: exception.method,
+      url: exception.url,
+      responseStatusCode: exception.code.toString(),
+      userAgent: HttpClient().userAgent,
+      referrer: "",
+      remoteIp: "",
+    );
   }
 
   @override
@@ -142,6 +192,7 @@ class HttpRequestContext {
     return toJson().toString();
   }
 
+  /// Converts this object to a JSON-ready map.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
@@ -171,23 +222,34 @@ class HttpRequestContext {
   }
 }
 
+/// Provides additional metadata for a reported error.
 class ErrorContext {
+  /// Source location where the error occurred.
   SourceLocation? reportLocation;
+
+  /// Source references that help identify the build or repository revision.
   List<SourceReference>? sourceReferences;
+
+  /// HTTP request metadata associated with the failure.
   HttpRequestContext? httpRequest;
+
+  /// End-user identifier attached to the report.
   String? user;
 
-  ErrorContext(
-      {this.reportLocation,
-      this.sourceReferences,
-      this.httpRequest,
-      this.user});
+  /// Creates an error context payload.
+  ErrorContext({
+    this.reportLocation,
+    this.sourceReferences,
+    this.httpRequest,
+    this.user,
+  });
 
   @override
   String toString() {
     return toJson().toString();
   }
 
+  /// Converts this object to a JSON-ready map.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 
@@ -208,11 +270,18 @@ class ErrorContext {
   }
 }
 
+/// Root payload sent to Google Cloud Error Reporting.
 class Payload {
+  /// Service metadata for the report.
   ServiceContext? serviceContext;
+
+  /// Additional error context for the report.
   ErrorContext? context;
+
+  /// Formatted error message including stack trace details.
   String? message;
 
+  /// Creates an Error Reporting payload.
   Payload({this.serviceContext, this.context, this.message});
 
   @override
@@ -220,6 +289,7 @@ class Payload {
     return toJson().toString();
   }
 
+  /// Converts this object to a JSON-ready map.
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
 

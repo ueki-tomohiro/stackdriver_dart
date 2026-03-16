@@ -1,3 +1,8 @@
+## 2.0.1
+
+- improve pub.dev package metadata with a clearer package description
+- add API documentation comments to improve generated reference coverage
+
 ## 2.0.0
 
 - require Flutter 3.41.4 and Dart 3.11.1
